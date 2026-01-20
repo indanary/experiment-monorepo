@@ -1,0 +1,43 @@
+# ===== Node / npm =====
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+yarn.lock
+
+# ===== Build outputs =====
+dist/
+build/
+coverage/
+*.tsbuildinfo
+
+# ===== Vite / Quasar =====
+.vite/
+.quasar/
+.quasar-app/
+.cache/
+.temp/
+*.log
+.env
+.env.local
+.env.*.local
+
+# ===== Editor / OS =====
+.DS_Store
+*.swp
+*.swo
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+
+# ===== TypeScript =====
+*.tsbuildinfo
+
+# ===== Monorepo specifics (important) =====
+apps/*/dist/
+apps/*/.quasar/
+apps/*/.vite/
+apps/*/node_modules/
+packages/*/dist/

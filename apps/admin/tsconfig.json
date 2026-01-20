@@ -1,0 +1,18 @@
+{
+  "compilerOptions": {
+    "baseUrl": ".",
+    "moduleResolution": "node",
+    "paths": {
+      "components/*": ["src/components/*"],
+      "layouts/*": ["src/layouts/*"],
+      "pages/*": ["src/pages/*"],
+      "boot/*": ["src/boot/*"],
+      "stores/*": ["src/stores/*"],
+
+      "@experiment-monorepo/shared": ["../../packages/shared/dist"],
+      "@experiment-monorepo/ui": ["../../packages/ui/dist"]
+    },
+    "types": ["quasar", "vite/client"]
+  },
+  "include": ["src/**/*", "src/**/*.vue"]
+}
