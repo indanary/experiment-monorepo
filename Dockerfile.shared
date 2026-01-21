@@ -1,0 +1,21 @@
+# ---------- BUILD STAGE (shared for all apps) ----------
+FROM node:20-alpine AS deps
+
+WORKDIR /app
+
+# Copy only package files first (better caching)
+COPY package.json package-lock.json ./
+COPY apps/web/package.json ./apps/web/package.json
+COPY apps/admin/package.json ./apps/admin/package.json
+COPY packages/shared/package.json ./packages/shared/package.json
+COPY packages/ui/package.json ./packages/ui/package.json
+
+# Install all workspace deps at root
+RUN npm install --ignore-scripts
+
+# Copy full source after install (so we don't bust the cache)
+COPY . .
+
+# Build shared packages (required for both apps)
+RUN npm run build --workspace=@experiment-monorepo/shared
+RUN npm run build --workspace=@experiment-monorepo/ui
