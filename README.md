@@ -226,3 +226,176 @@ Point your service to:
 
 - Image: `ghcr.io/<your-username>/experiment-monorepo/web:latest`
 - Port: `80`
+
+---
+
+```md
+# Turborepo in this repository
+
+## How `npx turbo build` and `npx turbo dev` know what to do
+
+Turborepo does **not invent tasks by itself** — it runs your existing npm scripts across all workspaces in a smart way.
+
+### 1) Your existing npm scripts (what to run)
+
+Each workspace already defines its own scripts in `package.json`, for example:
+```
+
+packages/shared/package.json → "build": "tsc"
+
+packages/ui/package.json → "build": "tsc"
+
+apps/web/package.json → "build": "quasar build", "dev": "quasar dev"
+
+apps/admin/package.json → "build": "quasar build", "dev": "quasar dev"
+
+```
+
+Because of this:
+
+- `npx turbo build` → runs the **`build` script in every workspace**
+- `npx turbo dev` → runs the **`dev` script in every workspace**
+
+Rule of thumb:
+> Turborepo can only run tasks that already exist in your `package.json` files.
+
+---
+
+### 2) npm Workspaces (where to run tasks)
+
+Your root `package.json` defines:
+
+```
+
+"workspaces": ["apps/*", "packages/*"]
+
+````
+
+This tells Turborepo which projects exist:
+
+- `@experiment-monorepo/shared`
+- `@experiment-monorepo/ui`
+- `apps-web`
+- `apps-admin`
+
+Turborepo automatically discovers these and knows it can run tasks inside them.
+
+---
+
+### 3) `turbo.json` (how to run tasks)
+
+While npm scripts define **what** to run and workspaces define **where**,
+`turbo.json` defines **in what order, in parallel, and with caching**.
+
+In one sentence:
+
+> **Your npm scripts define *what* to run, npm workspaces define *where*, and `turbo.json` defines *how* Turborepo runs them.**
+
+---
+
+# Understanding `turbo.json`
+
+This file is the “brain” of Turborepo — it controls task ordering, parallelism, and caching.
+
+### Current configuration
+
+```json
+{
+  "$schema": "https://turbo.build/schema.json",
+  "tasks": {
+    "build": {
+      "dependsOn": ["^build"],
+      "outputs": ["dist/**", ".quasar/**", "build/**"]
+    },
+    "dev": {
+      "cache": false,
+      "persistent": true
+    }
+  }
+}
+````
+
+### What each part means
+
+#### `$schema`
+
+Helps editors (like VS Code) understand the file and provide autocomplete and validation.
+
+---
+
+## `tasks.build`
+
+### `dependsOn: ["^build"]`
+
+This means:
+
+> “Before building this package, build all of its dependencies first.”
+
+Because your dependencies look like this:
+
+```
+shared → ui → web
+shared → ui → admin
+```
+
+Turborepo automatically runs tasks in this order:
+
+1. `@experiment-monorepo/shared` → build
+2. `@experiment-monorepo/ui` → build
+3. `apps-web` and `apps-admin` → build (in parallel)
+
+You did **not** manually specify this order — Turborepo inferred it from `package.json` dependencies.
+
+---
+
+### `outputs: ["dist/**", ".quasar/**", "build/**"]`
+
+These folders are treated as **important build artifacts**.
+
+Turborepo caches them so that if nothing changes, future runs of:
+
+```
+npx turbo build
+```
+
+will be mostly instant.
+
+---
+
+## `tasks.dev`
+
+```json
+"dev": {
+  "cache": false,
+  "persistent": true
+}
+```
+
+This means:
+
+- `cache: false` → do not cache dev servers
+- `persistent: true` → this is a long-running process (like `quasar dev`)
+
+This is what enables:
+
+```
+npx turbo dev
+```
+
+to:
+
+- start both `apps-web` and `apps-admin` at the same time,
+- keep them running,
+- and stream their logs together in one terminal.
+
+---
+
+### In short
+
+- `build` → smart, ordered, cached builds
+- `dev` → parallel, long-running development servers
+
+```
+
+---
+```

@@ -2,11 +2,19 @@
 	"name": "experiment-monorepo",
 	"version": "1.0.0",
 	"private": true,
+	"packageManager": "npm@10.9.2",
 	"workspaces": [
 		"apps/*",
 		"packages/*"
 	],
+	"scripts": {
+		"dev": "turbo dev",
+		"build": "turbo build",
+		"dev:web": "npm run dev --workspace=apps-web",
+		"dev:admin": "npm run dev --workspace=apps-admin"
+	},
 	"devDependencies": {
+		"turbo": "^2.7.5",
 		"typescript": "^5.9.3"
 	}
 }

@@ -41,3 +41,12 @@ apps/*/.quasar/
 apps/*/.vite/
 apps/*/node_modules/
 packages/*/dist/
+
+# ===== Turborepo =====
+.turbo/
+turbo-*   # logs, temp files
+
+# ===== Quasar build artifacts (safe to ignore) =====
+.quasar/
+build/
+dist/            # already ignored, but keep it explicit
